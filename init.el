@@ -131,7 +131,7 @@ Otherwise the startup will be very slow. "
 (require 'init-shell)
 
 (require 'init-markdown)
-(require 'init-org)
+(require 'init-org-alt)
 (require 'init-reader)
 
 (require 'init-dict)
@@ -156,6 +156,9 @@ Otherwise the startup will be very slow. "
 (require 'init-dart)
 (require 'init-elixir)
 (require 'init-web)
+
+;; My configs
+(require 'init-evil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; init.el ends here
