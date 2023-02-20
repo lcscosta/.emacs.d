@@ -104,7 +104,7 @@
       :functions posframe-poshandler-frame-center-near-bottom
       :custom-face
       (which-key-posframe ((t (:inherit tooltip))))
-      (which-key-posframe-border ((t (:inherit posframe-border))))
+      (which-key-posframe-border ((t (:inherit posframe-border :background unspecified))))
       :init
       (setq which-key-posframe-border-width 3
             which-key-posframe-poshandler #'posframe-poshandler-frame-center-near-bottom
@@ -308,7 +308,6 @@ of the buffer text to be displayed in the popup"
               ztree-show-number-of-children t))
 
 ;; Misc
-(use-package copyit)                    ; copy path, url, etc.
 (use-package focus)                     ; Focus on the current region
 (use-package memory-usage)
 
