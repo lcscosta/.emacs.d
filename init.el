@@ -1,10 +1,10 @@
 ;;; init.el --- A Fancy and Fast Emacs Configuration.	-*- lexical-binding: t no-byte-compile: t -*-
 
-;; Copyright (C) 2006-2022 Vincent Zhang
+;; Copyright (C) 2006-2023 Vincent Zhang
 
 ;; Author: Vincent Zhang <seagle0128@gmail.com>
 ;; URL: https://github.com/seagle0128/.emacs.d
-;; Version: 6.0.0
+;; Version: 7.1.0
 ;; Keywords: .emacs.d centaur
 
 ;;
@@ -60,13 +60,25 @@
 ;; Defer garbage collection further back in the startup process
 (setq gc-cons-threshold most-positive-fixnum)
 
-;; Prevent flash of unstyled modeline at startup
+;; Prevent flashing of unstyled modeline at startup
 (setq-default mode-line-format nil)
 
 ;; Don't pass case-insensitive to `auto-mode-alist'
 (setq auto-mode-case-fold nil)
 
 (unless (or (daemonp) noninteractive init-file-debug)
+  ;; Prevent flashing of messages at startup
+  (when (display-graphic-p)
+    (setq-default inhibit-redisplay t
+                  inhibit-message t)
+    (defun reset-inhibit-vars ()
+      (setq-default inhibit-redisplay nil
+                    inhibit-message nil)
+      (redraw-frame))
+    (add-hook 'window-setup-hook #'reset-inhibit-vars)
+    (define-advice startup--load-user-init-file (:after (&rest _) reset-inhibit-vars)
+      (and init-file-had-error (reset-inhibit-vars))))
+
   ;; Suppress file handlers operations at startup
   ;; `file-name-handler-alist' is consulted on each call to `require' and `load'
   (let ((old-value file-name-handler-alist))
@@ -90,7 +102,7 @@
   "Add subdirectories to `load-path'.
 
 Don't put large files in `site-lisp' directory, e.g. EAF.
-Otherwise the startup will be very slow. "
+Otherwise the startup will be very slow."
   (let ((default-directory (expand-file-name "site-lisp" user-emacs-directory)))
     (normal-top-level-add-subdirs-to-load-path)))
 
@@ -138,8 +150,7 @@ Otherwise the startup will be very slow. "
 
 ;; Programming
 (require 'init-vcs)
-(require 'init-flycheck)
-(require 'init-projectile)
+(require 'init-flymake)
 (require 'init-lsp)
 (require 'init-ctags)
 
@@ -150,7 +161,6 @@ Otherwise the startup will be very slow. "
 (require 'init-rust)
 (require 'init-python)
 (require 'init-ruby)
-(require 'init-dart)
 (require 'init-elixir)
 (require 'init-web)
 

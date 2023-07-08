@@ -1,6 +1,6 @@
 ;; init-dired.el --- Initialize dired configurations.	-*- lexical-binding: t -*-
 
-;; Copyright (C) 2006-2022 Vincent Zhang
+;; Copyright (C) 2006-2023 Vincent Zhang
 
 ;; Author: Vincent Zhang <seagle0128@gmail.com>
 ;; URL: https://github.com/seagle0128/.emacs.d
@@ -39,24 +39,27 @@
   :bind (:map dired-mode-map
          ("C-c C-p" . wdired-change-to-wdired-mode))
   :config
+  ;; Guess a default target directory
+  (setq dired-dwim-target t)
+
   ;; Always delete and copy recursively
   (setq dired-recursive-deletes 'always
         dired-recursive-copies 'always)
 
+  ;; Show directory first
+  (setq dired-listing-switches "-alh --group-directories-first")
+
   (when sys/macp
-    ;; Suppress the warning: `ls does not support --dired'.
-    (setq dired-use-ls-dired nil)
-
-    (when (executable-find "gls")
-      ;; Use GNU ls as `gls' from `coreutils' if available.
-      (setq insert-directory-program "gls")))
-
-  (when (or (and sys/macp (executable-find "gls"))
-            (and (or sys/linuxp sys/cygwinp) (executable-find "ls")))
-    ;; Using `insert-directory-program'
-    (setq ls-lisp-use-insert-directory-program t)
-    ;; Show directory first
-    (setq dired-listing-switches "-alh --group-directories-first"))
+    (if (executable-find "gls")
+        (progn
+          ;; Use GNU ls as `gls' from `coreutils' if available.
+          (setq insert-directory-program "gls")
+          ;; Using `insert-directory-program'
+          (setq ls-lisp-use-insert-directory-program t))
+      (progn
+        ;; Suppress the warning: `ls does not support --dired'.
+        (setq dired-use-ls-dired nil)
+        (setq dired-listing-switches "-alh"))))
 
   ;; Quick sort dired buffers via hydra
   (use-package dired-quick-sort
@@ -78,28 +81,12 @@
     :hook (dired-mode . diredfl-mode))
 
   ;; Shows icons
-  (use-package all-the-icons-dired
+  (use-package nerd-icons-dired
     :diminish
-    :hook (dired-mode . (lambda ()
-                          (when (icon-displayable-p)
-                            (all-the-icons-dired-mode))))
-    :init (setq all-the-icons-dired-monochrome nil)
-    :config
-    (with-no-warnings
-      (defun my-all-the-icons-dired--icon (file)
-        "Return the icon for FILE."
-        (if (file-directory-p file)
-            (all-the-icons-icon-for-dir file
-                                        :height 0.9
-                                        :face 'all-the-icons-dired-dir-face
-                                        :v-adjust all-the-icons-dired-v-adjust)
-          (apply 'all-the-icons-icon-for-file file
-                 (append
-                  '(:height 0.9)
-                  `(:v-adjust ,all-the-icons-dired-v-adjust)
-                  (when all-the-icons-dired-monochrome
-                    `(:face ,(face-at-point)))))))
-      (advice-add #'all-the-icons-dired--icon :override #'my-all-the-icons-dired--icon)))
+    :commands nerd-icons-dired-mode
+    :custom-face
+    (nerd-icons-dired-dir-face ((t (:inherit nerd-icons-dsilver :foreground unspecified))))
+    :hook (dired-mode . nerd-icons-dired-mode))
 
   ;; Extra Dired functionality
   (use-package dired-aux :ensure nil)

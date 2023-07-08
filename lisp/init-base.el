@@ -1,6 +1,6 @@
 ;; init-base.el --- Better default configurations.	-*- lexical-binding: t -*-
 
-;; Copyright (C) 2006-2022 Vincent Zhang
+;; Copyright (C) 2006-2023 Vincent Zhang
 
 ;; Author: Vincent Zhang <seagle0128@gmail.com>
 ;; URL: https://github.com/seagle0128/.emacs.d
@@ -34,6 +34,9 @@
 (require 'init-const)
 (require 'init-custom)
 (require 'init-funcs)
+
+;; Compatibility
+(use-package compat :demand t)
 
 ;; Personal information
 (setq user-full-name centaur-full-name
@@ -100,10 +103,6 @@
 (when (or sys/mac-x-p sys/linux-x-p (daemonp))
   (use-package exec-path-from-shell
     :init (exec-path-from-shell-initialize)))
-
-;; Compatibility
-(use-package compat
-  :demand t)
 
 ;; Start server
 (use-package server
@@ -173,7 +172,7 @@
     (add-hook 'process-menu-mode-hook
               (lambda ()
                 (setq tabulated-list-format
-                      (vconcat `(("" ,(if (icon-displayable-p) 2 0)))
+                      (vconcat `(("" ,(if (icons-displayable-p) 2 0)))
                                tabulated-list-format))))
 
     (defun my-list-processes--prettify ()
@@ -182,12 +181,10 @@
         (setq tabulated-list-entries nil)
         (dolist (p (process-list))
           (when-let* ((val (cadr (assoc p entries)))
-                      (icon (if (icon-displayable-p)
+                      (icon (if (icons-displayable-p)
                                 (concat
                                  " "
-                                 (all-the-icons-faicon "bolt"
-                                                       :height 1.0 :v-adjust -0.05
-                                                       :face 'all-the-icons-lblue))
+                                 (nerd-icons-faicon "nf-fa-bolt" :face 'nerd-icons-lblue))
                               " x"))
                       (name (aref val 0))
                       (pid (aref val 1))
@@ -251,9 +248,7 @@
 
 ;; Sqlite
 (when (fboundp 'sqlite-open)
-  (use-package emacsql-sqlite-builtin
-    :defines emacsql-sqlite-c-compilers
-    :init (setq emacsql-sqlite-c-compilers nil)))
+  (use-package emacsql-sqlite-builtin))
 
 (provide 'init-base)
 
